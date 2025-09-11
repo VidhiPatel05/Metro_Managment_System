@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Proceed to Payment - Metro System</title>
+  <link rel="stylesheet" href="proceed_payment.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- ✅ QRCode.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="ticket-card">
+    <div class="ticket-header">Metro Ticket</div>
+
+    <div class="ticket-body">
+      <div class="station-row">
+        <div>
+          <h2 id="from-code">---</h2>
+          <p id="from-station"></p>
+        </div>
+        <div class="arrow">→</div>
+        <div>
+          <h2 id="to-code">---</h2>
+          <p id="to-station"></p>
+        </div>
+      </div>
+
+      <div class="ticket-info">
+        <p><strong>Date:</strong> <span id="travel-date"></span></p>
+        <p><strong>Time:</strong> <span id="travel-time"></span></p>
+        <p><strong>Type:</strong> Single</p>
+        <p><strong>Amount:</strong> ₹35</p>
+        <p><strong>Expiry:</strong> <span id="expiry-time"></span></p>
+      </div>
+
+      <!-- QR Code container -->
+      <div class="qr-container">
+        <div id="qrcode"></div>
+        <p class="qr-note">Scan this QR code at the station</p>
+      </div>
+    </div>
+
+    <div class="ticket-footer">
+      <button id="pay-btn">Proceed to Pay</button>
+    </div>
+  </div>
+
+  <script>
+    // Parse URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromStation = urlParams.get("from") || "Source Station";
+    const toStation = urlParams.get("to") || "Destination Station";
+    const travelDate = urlParams.get("date") || new Date().toLocaleDateString();
+    const travelTime = urlParams.get("time") || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    // Update DOM elements
+    document.getElementById("from-station").textContent = fromStation;
+    document.getElementById("to-station").textContent = toStation;
+    document.getElementById("from-code").textContent = fromStation.slice(0,3).toUpperCase();
+    document.getElementById("to-code").textContent = toStation.slice(0,3).toUpperCase();
+    document.getElementById("travel-date").textContent = travelDate;
+    document.getElementById("travel-time").textContent = travelTime;
+
+    // Expiry 24h from now
+    const expiry = new Date();
+    expiry.setHours(expiry.getHours() + 24);
+    document.getElementById("expiry-time").textContent = expiry.toLocaleString();
+
+    // ✅ Generate QR code with actual data
+    function generateQRCode() {
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.innerHTML = ""; // clear old QR if any
+
+      const qrText = `Metro Ticket
+From: ${fromStation}
+To: ${toStation}
+Date: ${travelDate}
+Time: ${travelTime}
+Amount: ₹35`;
+
+      new QRCode(qrContainer, {
+        text: qrText,
+        width: 140,
+        height: 140,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // Generate QR code on page load
+    generateQRCode();
+
+    // Payment button handler
+    document.getElementById("pay-btn").onclick = function () {
+      alert("In a real implementation, this would open Razorpay payment gateway.\n\nFor this demo, we'll simulate a successful payment.");
+
+      setTimeout(function() {
+        alert("Payment successful! Redirecting to your ticket...");
+        window.location.href = `ticket.html?from=${encodeURIComponent(fromStation)}&to=${encodeURIComponent(toStation)}&date=${encodeURIComponent(travelDate)}&time=${encodeURIComponent(travelTime)}`;
+      }, 1500);
+    };
+  </script>
+</body>
+</html>

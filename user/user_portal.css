@@ -1,0 +1,154 @@
+/* Reset & base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+/* Full-screen background image */
+body {
+    background: url('img/m1.jpg') center/cover no-repeat fixed;
+    overflow: hidden;
+}
+
+/* Container to hold the floating glass window */
+.container {
+    display: flex;
+    justify-content: flex-start; /* window on left */
+    align-items: flex-start;     /* align to top */
+    height: 100vh;
+    padding-left: 70px;          /* distance from left edge */
+    padding-top: 90px;           /* move window down */
+}
+
+/* Floating glass window */
+.floating-window {
+    background: rgba(255, 255, 255, 0.05); /* glass effect */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 50px 45px;
+    width: 600px;
+    max-width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo */
+.logo {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #8B0000;
+}
+
+/* Title */
+h1 {
+    font-size: 2.8rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.metro-text {
+    color: #FF0000; /* red highlight */
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Metro line */
+.metro-line {
+    width: 90%;
+    height: 4px;
+    margin: 25px 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #8B0000, transparent);
+}
+
+/* Buttons container */
+.button-container {
+    display: flex;
+    flex-direction: row; /* side by side */
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+}
+
+/* Common button styles */
+.btn {
+    flex: 1;
+    padding: 18px 0;
+    font-size: 1.2rem;
+    border-radius: 14px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Login button */
+.user-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+    border: 2px solid #fff;
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.1);
+}
+
+.user-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 18px rgba(255, 255, 255, 0.2);
+}
+
+/* Register button */
+.admin-btn {
+    background-color: rgba(139, 0, 0, 0.15);
+    color: white;
+    border: 2px solid #8B0000;
+    box-shadow: 0 0 14px rgba(139, 0, 0, 0.25);
+}
+
+.admin-btn:hover {
+    background-color: rgba(139, 0, 0, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 18px rgba(139, 0, 0, 0.35);
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+    .container {
+        justify-content: center;
+        padding-left: 0;
+        padding-top: 50px;
+    }
+
+    .floating-window {
+        width: 90%;
+        padding: 35px 25px;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    .btn {
+        font-size: 1.1rem;
+        padding: 16px 0;
+    }
+
+    .button-container {
+        flex-direction: column; /* stack buttons on small screens */
+        gap: 15px;
+    }
+}

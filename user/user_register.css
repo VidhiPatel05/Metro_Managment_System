@@ -1,0 +1,159 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+/* Full-screen background image */
+body {
+    background: url('img/m1.jpg') center/cover no-repeat fixed;
+    overflow: hidden;
+}
+
+/* Container for floating glass window */
+.container {
+    display: flex;
+    justify-content: flex-start; /* window on left */
+    align-items: flex-start;
+    height: 100vh;
+    padding-left: 70px;
+    padding-top: 90px; /* moves window down */
+}
+
+/* Floating glass window */
+.floating-window {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 50px 45px;
+    width: 600px;
+    max-width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo */
+.logo {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #8B0000;
+}
+
+/* Title */
+h1 {
+    font-size: 2.8rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.metro-text {
+    color: #FF0000;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Metro line */
+.metro-line {
+    width: 90%;
+    height: 4px;
+    margin: 25px 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #8B0000, transparent);
+}
+
+/* Form section */
+.form-section {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-section input {
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+}
+
+.form-section input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Register button */
+.form-section button {
+    padding: 14px 0;
+    border-radius: 12px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: rgba(139, 0, 0, 0.15);
+    color: #fff;
+    border: 2px solid #8B0000;
+    box-shadow: 0 0 14px rgba(139,0,0,0.25);
+}
+
+.form-section button:hover {
+    background-color: rgba(139, 0, 0, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 0, 0, 0.35);
+}
+
+/* Login link below register form */
+.register-link {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.register-link a {
+    color: #500606;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.register-link a:hover {
+    color: #000000;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .container {
+        justify-content: center;
+        padding-left: 0;
+        padding-top: 50px;
+    }
+
+    .floating-window {
+        width: 90%;
+        padding: 35px 25px;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    .form-section button {
+        font-size: 1.1rem;
+        padding: 12px 0;
+    }
+}

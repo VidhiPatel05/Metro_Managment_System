@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Metro System</title>
+    <link rel="stylesheet" href="user_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="floating-window">
+            <h1>Book My Ticket</h1>
+            <form id="booking-form">
+                <label for="from-station">From Station</label>
+                <input type="text" id="from-station" placeholder="Enter source station" required>
+
+                <label for="to-station">To Station</label>
+                <input type="text" id="to-station" placeholder="Enter destination station" required>
+
+                <label for="travel-date">Date</label>
+                <input type="date" id="travel-date" required>
+
+                <label for="travel-time">Time</label>
+                <input type="time" id="travel-time" required>
+
+                <label for="ticket-type">Ticket Type</label>
+                <input type="text" id="ticket-type" value="Single" readonly>
+
+                <button type="submit" class="confirm-btn">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submit
+        document.getElementById("booking-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Collect values
+            const fromStation = document.getElementById("from-station").value;
+            const toStation = document.getElementById("to-station").value;
+            const travelDate = document.getElementById("travel-date").value;
+            const travelTime = document.getElementById("travel-time").value;
+
+            // Redirect to payment page with query params
+            const url = `proceed_payment.html?from=${encodeURIComponent(fromStation)}&to=${encodeURIComponent(toStation)}&date=${encodeURIComponent(travelDate)}&time=${encodeURIComponent(travelTime)}`;
+            
+            window.location.href = url;
+        });
+    </script>
+</body>
+</html>

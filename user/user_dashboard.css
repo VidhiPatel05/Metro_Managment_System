@@ -1,0 +1,96 @@
+/* Reset & base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+/* Full-screen background image */
+body {
+    background: url('img/m4.jpg') center/cover no-repeat fixed;
+    overflow: hidden;
+}
+
+/* Container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Floating window */
+.floating-window {
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 40px 35px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.floating-window h1 {
+    margin-bottom: 25px;
+    color: #8B0000;
+    font-size: 2rem;
+    text-align: center;
+}
+
+/* Form styles */
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+form input {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* Confirm Booking button */
+.confirm-btn {
+    margin-top: 25px;
+    padding: 14px 0;
+    background-color: #b31818; /* red */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+    background-color: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+    .floating-window {
+        width: 90%;
+        padding: 30px 20px;
+    }
+}
