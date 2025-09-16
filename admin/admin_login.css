@@ -142,3 +142,21 @@ h1 {
         padding: 12px 0;
     }
 }
+
+/* Error Message Styling */
+.error-message {
+    color: #D8000C;
+    background-color: #FFD2D2;
+    border: 1px solid #D8000C;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+/* Show the error message div only when it has content */
+.error-message:not(:empty) {
+    display: block;
+}
+

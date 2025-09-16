@@ -3,24 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Portal - Metro System</title>
+    <title>User Dashboard - Metro System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="user_portal.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="floating-window">
-            <div class="logo">
-                <i class="fas fa-user"></i>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <h2>Welcome, User!</h2>
             </div>
-            <h1>USER <span class="metro-text">PORTAL</span></h1>
-            <div class="metro-line"></div>
-            <div class="button-container">
-                <!-- Redirect to separate pages -->
-                <a href="user_login.html" class="btn user-btn">Login</a>
-                <a href="user_register.html" class="btn admin-btn">Register</a>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#my-tickets" class="active"><i class="fas fa-ticket-alt"></i> My Tickets</a></li>
+                    <li><a href="user_dashboard.html"><i class="fas fa-plus-circle"></i> Book New Ticket</a></li>
+                    <li><a href="#profile"><i class="fas fa-user-edit"></i> Profile</a></li>
+                    <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1>My Tickets</h1>
+            </header>
+
+            <section id="my-tickets" class="dashboard-section active">
+                <div class="tickets-list">
+                    <!-- Tickets will be loaded here by JavaScript -->
+                    <p id="no-tickets-message">Loading tickets...</p>
+                </div>
+            </section>
+
+            <!-- Ticket Details Modal -->
+            <div id="ticket-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h2>Ticket Details</h2>
+                    <div class="modal-ticket-info">
+                        <p><strong>Ticket ID:</strong> <span id="modal-ticket-id"></span></p>
+                        <p><strong>From:</strong> <span id="modal-from-station"></span></p>
+                        <p><strong>To:</strong> <span id="modal-to-station"></span></p>
+                        <p><strong>Date:</strong> <span id="modal-travel-date"></span></p>
+                        <p><strong>Time:</strong> <span id="modal-travel-time"></span></p>
+                        <p><strong>Amount:</strong> ₹<span id="modal-ticket-amount"></span></p>
+                        <p><strong>Status:</strong> <span id="modal-payment-status"></span></p>
+                    </div>
+                    <div class="modal-qr-container">
+                        <div id="modal-qrcode"></div>
+                        <p class="qr-note">Scan this QR code at the station</p>
+                    </div>
+                    <button id="modal-download-btn" class="btn">Download QR</button>
+                </div>
             </div>
-        </div>
+
+            <!-- Other sections (Book New Ticket, Profile, Settings) can be added here -->
+            <section id="book-new-ticket" class="dashboard-section hidden">
+                <h2>Book New Ticket</h2>
+                <p>Content for booking new tickets will go here.</p>
+            </section>
+            <section id="profile" class="dashboard-section hidden">
+                <h2>Profile</h2>
+                <p>User profile details will go here.</p>
+            </section>
+            <section id="settings" class="dashboard-section hidden">
+                <h2>Settings</h2>
+                <p>User settings will go here.</p>
+            </section>
+
+            <!-- Other sections (Book New Ticket, Profile, Settings) can be added here -->
+            <section id="book-new-ticket" class="dashboard-section hidden">
+                <h2>Book New Ticket</h2>
+                <p>Content for booking new tickets will go here.</p>
+            </section>
+            <section id="profile" class="dashboard-section hidden">
+                <h2>Profile</h2>
+                <p>User profile details will go here.</p>
+            </section>
+            <section id="settings" class="dashboard-section hidden">
+                <h2>Settings</h2>
+                <p>User settings will go here.</p>
+            </section>
+
+        </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userToken = localStorage.getItem('user_token');
+            if (!userToken) {
+                alert('You must be logged in to view your tickets.');
+                window.location.href = 'user_login.html';
+                return;
+            }
+
+            const ticketsListDiv = document.querySelector('.tickets-list');
+            const noTicketsMessage = document.getElementById('no-tickets-message');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/users/my-tickets', {
+                    method: 'GET',
+                    headers: {
+                        'x-auth-token': userToken
+                    }
+                });
+
+                const tickets = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(tickets.msg || 'Failed to fetch tickets');
+                }
+
+                if (tickets.length === 0) {
+                    noTicketsMessage.textContent = 'You have no booked tickets yet.';
+                } else {
+                    noTicketsMessage.style.display = 'none'; // Hide loading message
+                    // Store tickets in a variable accessible by the click handler
+                    let allTickets = tickets;
+
+                    tickets.forEach(ticket => {
+                        console.log("Ticket object before stringify:", ticket); // Added console.log
+                        const ticketCard = document.createElement('div');
+                        ticketCard.classList.add('ticket-summary-card');
+                        ticketCard.innerHTML = `
+                            <h3>Ticket ID: ${ticket.ticket_id}</h3>
+                            <p>From: ${ticket.from_station_name}</p>
+                            <p>To: ${ticket.to_station_name}</p>
+                            <p>Date: ${new Date(ticket.ticket_date).toLocaleDateString()}</p>
+                            <p>Amount: ₹${ticket.ticket_amount}</p>
+                            <p>Status: ${ticket.payment_status}</p>
+                            <button class="btn view-ticket-btn" data-ticket-id="${ticket.ticket_id}">View Details</button>
+                        `;
+                        ticketsListDiv.appendChild(ticketCard);
+                    });
+
+                    document.querySelectorAll('.view-ticket-btn').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            const clickedTicketId = parseInt(event.target.dataset.ticketId);
+                            const ticketData = allTickets.find(t => t.ticket_id === clickedTicketId);
+
+                            if (ticketData) {
+                                // Redirect to proceed_payment.html with ticket details as URL parameters
+                                const url = `proceed_payment.html?ticketId=${ticketData.ticket_id}&ticketAmount=${ticketData.ticket_amount}&from=${encodeURIComponent(ticketData.from_station_name)}&to=${encodeURIComponent(ticketData.to_station_name)}&date=${encodeURIComponent(new Date(ticketData.ticket_date).toLocaleDateString())}&time=${encodeURIComponent(ticketData.issued_time)}`;
+                                window.location.href = url;
+                            } else {
+                                console.error("Ticket data not found for ID:", clickedTicketId);
+                                alert("Could not retrieve ticket details.");
+                            }
+                        });
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error fetching tickets:', error);
+                noTicketsMessage.textContent = `Error loading tickets: ${error.message}`;
+            }
+
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('user_token');
+                window.location.href = 'user_login.html';
+            });
+
+            // Sidebar navigation
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        e.preventDefault(); // Prevent default only for internal links
+                        document.querySelectorAll('.dashboard-section').forEach(section => {
+                            section.classList.add('hidden');
+                        });
+                        document.querySelectorAll('.sidebar-nav a').forEach(navLink => {
+                            navLink.classList.remove('active');
+                        });
+
+                        const targetId = href.substring(1);
+                        document.getElementById(targetId).classList.remove('hidden');
+                        this.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

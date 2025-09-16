@@ -1,154 +1,289 @@
-/* Reset & base styles */
-* {
+body {
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
 }
 
-body, html {
-    height: 100%;
-    width: 100%;
-}
-
-/* Full-screen background image */
-body {
-    background: url('img/m1.jpg') center/cover no-repeat fixed;
-    overflow: hidden;
-}
-
-/* Container to hold the floating glass window */
-.container {
+.dashboard-container {
     display: flex;
-    justify-content: flex-start; /* window on left */
-    align-items: flex-start;     /* align to top */
-    height: 100vh;
-    padding-left: 70px;          /* distance from left edge */
-    padding-top: 90px;           /* move window down */
+    min-height: 100vh;
 }
 
-/* Floating glass window */
-.floating-window {
-    background: rgba(255, 255, 255, 0.05); /* glass effect */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 25px;
-    padding: 50px 45px;
-    width: 600px;
-    max-width: 90%;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-    color: #fff;
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* Dark blue-grey */
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* Logo */
-.logo {
-    font-size: 3rem;
-    margin-bottom: 20px;
-    color: #8B0000;
-}
-
-/* Title */
-h1 {
-    font-size: 2.8rem;
-    margin-bottom: 25px;
+.user-info {
     text-align: center;
+    margin-bottom: 30px;
 }
 
-.metro-text {
-    color: #FF0000; /* red highlight */
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.user-info i {
+    font-size: 4rem;
+    color: #3498db; /* Blue */
+    margin-bottom: 10px;
 }
 
-/* Metro line */
-.metro-line {
-    width: 90%;
-    height: 4px;
-    margin: 25px 0;
-    border-radius: 2px;
-    background: linear-gradient(90deg, transparent, #8B0000, transparent);
+.user-info h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
-/* Buttons container */
-.button-container {
-    display: flex;
-    flex-direction: row; /* side by side */
-    justify-content: space-between;
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
     width: 100%;
+}
+
+.sidebar-nav li {
+    margin-bottom: 10px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar-nav a i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background-color: #34495e; /* Slightly lighter dark blue-grey */
+    color: #3498db; /* Blue */
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+    background-color: #ecf0f1; /* Light grey */
+}
+
+.main-header {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #2c3e50;
+}
+
+.dashboard-section {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.tickets-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
 
-/* Common button styles */
+.ticket-summary-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+.ticket-summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.ticket-summary-card h3 {
+    margin-top: 0;
+    color: #3498db;
+}
+
+.ticket-summary-card p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
 .btn {
-    flex: 1;
-    padding: 18px 0;
-    font-size: 1.2rem;
-    border-radius: 14px;
-    text-align: center;
-    text-decoration: none;
-    font-weight: bold;
+    background-color: #3498db; /* Blue */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+    text-decoration: none; /* For anchor tags */
+    display: inline-block;
+    margin-top: 10px;
 }
 
-/* Login button */
-.user-btn {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: white;
-    border: 2px solid #fff;
-    box-shadow: 0 0 14px rgba(255, 255, 255, 0.1);
+.btn:hover {
+    background-color: #2980b9; /* Darker blue */
 }
 
-.user-btn:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-3px);
-    box-shadow: 0 7px 18px rgba(255, 255, 255, 0.2);
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
 }
 
-/* Register button */
-.admin-btn {
-    background-color: rgba(139, 0, 0, 0.15);
-    color: white;
-    border: 2px solid #8B0000;
-    box-shadow: 0 0 14px rgba(139, 0, 0, 0.25);
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 500px;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: animatetop 0.4s;
 }
 
-.admin-btn:hover {
-    background-color: rgba(139, 0, 0, 0.25);
-    transform: translateY(-3px);
-    box-shadow: 0 7px 18px rgba(139, 0, 0, 0.35);
+/* Add Animation */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
 }
 
-/* Responsive design */
-@media (max-width: 900px) {
-    .container {
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-ticket-info p {
+    margin: 8px 0;
+}
+
+.modal-qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+}
+
+#modal-qrcode {
+    margin-bottom: 10px;
+}
+
+.qr-note {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+        flex-direction: row;
+        justify-content: space-around;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .user-info {
+        display: none; /* Hide user info on small screens */
+    }
+
+    .sidebar-nav ul {
+        display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        padding-left: 0;
-        padding-top: 50px;
     }
 
-    .floating-window {
-        width: 90%;
-        padding: 35px 25px;
+    .sidebar-nav li {
+        margin: 0 5px;
     }
 
-    h1 {
-        font-size: 2.2rem;
+    .sidebar-nav a {
+        padding: 8px 10px;
+        font-size: 0.9rem;
     }
 
-    .btn {
-        font-size: 1.1rem;
-        padding: 16px 0;
+    .sidebar-nav a i {
+        margin-right: 5px;
     }
 
-    .button-container {
-        flex-direction: column; /* stack buttons on small screens */
-        gap: 15px;
+    .main-content {
+        padding: 20px;
+    }
+
+    .main-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-nav a {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    .main-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .ticket-summary-card {
+        padding: 15px;
     }
 }

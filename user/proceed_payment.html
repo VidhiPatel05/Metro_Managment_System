@@ -8,12 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <!-- ✅ QRCode.js from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
   <div class="ticket-card">
     <div class="ticket-header">Metro Ticket</div>
 
-    <div class="ticket-body">
+    <div class="ticket-body hidden">
       <div class="station-row">
         <div>
           <h2 id="from-code">---</h2>
@@ -30,7 +32,8 @@
         <p><strong>Date:</strong> <span id="travel-date"></span></p>
         <p><strong>Time:</strong> <span id="travel-time"></span></p>
         <p><strong>Type:</strong> Single</p>
-        <p><strong>Amount:</strong> ₹35</p>
+        <p><strong>Amount:</strong> ₹<span id="ticket-amount"></span></p>
+        <p><strong>Ticket ID:</strong> <span id="ticket-id"></span></p>
         <p><strong>Expiry:</strong> <span id="expiry-time"></span></p>
       </div>
 
@@ -43,6 +46,7 @@
 
     <div class="ticket-footer">
       <button id="pay-btn">Proceed to Pay</button>
+      <button id="download-ticket-btn" class="hidden">Download Ticket</button>
     </div>
   </div>
 
@@ -53,6 +57,8 @@
     const toStation = urlParams.get("to") || "Destination Station";
     const travelDate = urlParams.get("date") || new Date().toLocaleDateString();
     const travelTime = urlParams.get("time") || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const ticketId = urlParams.get("ticketId") || "N/A";
+    const ticketAmount = urlParams.get("ticketAmount") || "0";
 
     // Update DOM elements
     document.getElementById("from-station").textContent = fromStation;
@@ -61,6 +67,8 @@
     document.getElementById("to-code").textContent = toStation.slice(0,3).toUpperCase();
     document.getElementById("travel-date").textContent = travelDate;
     document.getElementById("travel-time").textContent = travelTime;
+    document.getElementById("ticket-amount").textContent = ticketAmount;
+    document.getElementById("ticket-id").textContent = ticketId;
 
     // Expiry 24h from now
     const expiry = new Date();
@@ -72,12 +80,7 @@
       const qrContainer = document.getElementById("qrcode");
       qrContainer.innerHTML = ""; // clear old QR if any
 
-      const qrText = `Metro Ticket
-From: ${fromStation}
-To: ${toStation}
-Date: ${travelDate}
-Time: ${travelTime}
-Amount: ₹35`;
+      const qrText = `Metro Ticket\nTicket ID: ${ticketId}\nFrom: ${fromStation}\nTo: ${toStation}\nDate: ${travelDate}\nTime: ${travelTime}\nAmount: ₹${ticketAmount}`;
 
       new QRCode(qrContainer, {
         text: qrText,
@@ -89,17 +92,116 @@ Amount: ₹35`;
       });
     }
 
-    // Generate QR code on page load
-    generateQRCode();
-
     // Payment button handler
-    document.getElementById("pay-btn").onclick = function () {
-      alert("In a real implementation, this would open Razorpay payment gateway.\n\nFor this demo, we'll simulate a successful payment.");
+    document.getElementById("pay-btn").onclick = async function () {
+        console.log("Proceed to Pay button clicked.");
+        const userToken = localStorage.getItem('user_token');
+        if (!userToken) {
+            alert('You must be logged in to proceed with payment.');
+            window.location.href = 'user_login.html'; // Redirect to login
+            return;
+        }
+        console.log("User token found:", userToken ? "Yes" : "No");
 
-      setTimeout(function() {
-        alert("Payment successful! Redirecting to your ticket...");
-        window.location.href = `ticket.html?from=${encodeURIComponent(fromStation)}&to=${encodeURIComponent(toStation)}&date=${encodeURIComponent(travelDate)}&time=${encodeURIComponent(travelTime)}`;
-      }, 1500);
+        try {
+            // Step 1: Create order on backend
+            const orderResponse = await fetch('http://localhost:3000/api/users/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': userToken
+                },
+                body: JSON.stringify({ ticketAmount: parseFloat(ticketAmount), ticketId: parseInt(ticketId) })
+            });
+
+            const orderData = await orderResponse.json();
+
+            if (!orderResponse.ok) {
+                alert(`Error creating order: ${orderData.msg || 'Unknown error'}`);
+                return;
+            }
+
+            // Step 2: Open Razorpay Checkout
+            const options = {
+                key: "rzp_test_RFyGMA5aBLFtc3", // IMPORTANT: Replace with your actual Razorpay Key ID from your .env file or configuration
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Metro System Ticket",
+                description: "Ticket Booking",
+                order_id: orderData.id,
+                handler: async function (response) {
+                    // Step 3: Verify payment on backend
+                    try {
+                        const verifyResponse = await fetch('http://localhost:3000/api/users/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-auth-token': userToken
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                ticketId: parseInt(ticketId),
+                                ticketAmount: parseFloat(ticketAmount) // Pass amount for verification
+                            })
+                        });
+
+                        const verifyData = await verifyResponse.json();
+
+                        if (verifyResponse.ok) {
+                            document.querySelector('.ticket-body').classList.remove('hidden');
+                            document.querySelector('.ticket-footer').classList.remove('hidden');
+                            document.getElementById('pay-btn').classList.add('hidden'); // Hide pay button
+                            document.getElementById('download-ticket-btn').classList.remove('hidden'); // Show download button
+                            generateQRCode();
+
+                            // Download ticket logic
+                            document.getElementById
+                            
+                            ('download-ticket-btn').onclick = function() {
+                                const qrCanvas = document.querySelector('#qrcode canvas');
+                                if (qrCanvas) {
+                                    const link = document.createElement('a');
+                                    link.download = `metro_ticket_${ticketId}.png`;
+                                    link.href = qrCanvas.toDataURL('image/png');
+                                    link.click();
+                                } else {
+                                    alert('QR code not available for download.');
+                                }
+                            };
+
+                        } else {
+                            alert(`Payment verification failed: ${verifyData.msg || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error verifying payment:', error);
+                        alert('An error occurred during payment verification.');
+                    }
+                },
+                prefill: {
+                    name: "User Name", // You can prefill user's name
+                    email: "user@example.com", // You can prefill user's email
+                    contact: "9999999999" // You can prefill user's contact
+                },
+                notes: {
+                    ticket_id: ticketId
+                },
+                theme: {
+                    color: "#8B0000"
+                }
+            };
+            const rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                alert(`Payment failed: ${response.error.description}`);
+                console.error('Payment failed:', response.error);
+            });
+            rzp1.open();
+
+        } catch (error) {
+            console.error('Error initiating payment:', error);
+            alert('An error occurred while initiating payment.');
+        }
     };
   </script>
 </body>

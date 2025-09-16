@@ -13,10 +13,14 @@
             <h1>Book My Ticket</h1>
             <form id="booking-form">
                 <label for="from-station">From Station</label>
-                <input type="text" id="from-station" placeholder="Enter source station" required>
+                <select id="from-station" required>
+                    <option value="">Select From Station</option>
+                </select>
 
                 <label for="to-station">To Station</label>
-                <input type="text" id="to-station" placeholder="Enter destination station" required>
+                <select id="to-station" required>
+                    <option value="">Select To Station</option>
+                </select>
 
                 <label for="travel-date">Date</label>
                 <input type="date" id="travel-date" required>
@@ -29,24 +33,85 @@
 
                 <button type="submit" class="confirm-btn">Confirm Booking</button>
             </form>
+            <div id="booking-message" style="margin-top: 15px; color: red;"></div>
         </div>
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const fromStationSelect = document.getElementById('from-station');
+            const toStationSelect = document.getElementById('to-station');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/users/stations');
+                const stations = await response.json();
+
+                if (response.ok) {
+                    stations.forEach(station => {
+                        const option1 = document.createElement('option');
+                        option1.value = station.station_name;
+                        option1.textContent = station.station_name;
+                        fromStationSelect.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = station.station_name;
+                        option2.textContent = station.station_name;
+                        toStationSelect.appendChild(option2);
+                    });
+                } else {
+                    console.error('Failed to fetch stations:', stations.msg || 'Unknown error');
+                    // Optionally display an error message to the user
+                }
+            } catch (error) {
+                console.error('Error fetching stations:', error);
+                // Optionally display an error message to the user
+            }
+        });
+
         // Handle form submit
-        document.getElementById("booking-form").addEventListener("submit", function(event) {
+        document.getElementById("booking-form").addEventListener("submit", async function(event) {
             event.preventDefault();
+
+            const bookingMessageDiv = document.getElementById('booking-message');
+            bookingMessageDiv.textContent = ''; // Clear previous messages
 
             // Collect values
             const fromStation = document.getElementById("from-station").value;
             const toStation = document.getElementById("to-station").value;
             const travelDate = document.getElementById("travel-date").value;
             const travelTime = document.getElementById("travel-time").value;
+            const userToken = localStorage.getItem('user_token');
 
-            // Redirect to payment page with query params
-            const url = `proceed_payment.html?from=${encodeURIComponent(fromStation)}&to=${encodeURIComponent(toStation)}&date=${encodeURIComponent(travelDate)}&time=${encodeURIComponent(travelTime)}`;
-            
-            window.location.href = url;
+            if (!userToken) {
+                bookingMessageDiv.textContent = 'You must be logged in to book a ticket.';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/users/book-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': userToken
+                    },
+                    body: JSON.stringify({ fromStation, toStation, travelDate, travelTime })
+                });
+
+                console.log("Response from book-ticket API:", response);
+                const data = await response.json();
+                console.log("Data from book-ticket API:", data);
+
+                if (response.ok) {
+                    // Booking successful, redirect to payment page with booking details
+                    const url = `proceed_payment.html?ticketId=${data.ticketId}&ticketAmount=${data.ticketAmount}&from=${encodeURIComponent(data.fromStation)}&to=${encodeURIComponent(data.toStation)}&date=${encodeURIComponent(data.travelDate)}&time=${encodeURIComponent(data.travelTime)}`;
+                    window.location.href = url;
+                } else {
+                    bookingMessageDiv.textContent = data.msg || 'Failed to book ticket. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error booking ticket:', error);
+                bookingMessageDiv.textContent = 'An error occurred while booking your ticket.';
+            }
         });
     </script>
 </body>
