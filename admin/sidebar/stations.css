@@ -1,0 +1,213 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: url('../img/m9.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+/* Container */
+.stations-container {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.3s;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+/* Form Popup */
+.form-popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.form-container {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  padding: 25px;
+  border-radius: 15px;
+  width: 400px;
+  color: white;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-container label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: 500;
+}
+
+.form-container input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  outline: none;
+}
+/* Fix for dropdown visibility */
+.form-container select {
+    width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.9);  /* solid background for dropdown */
+  color: #333;                        /* dark text for readability */
+  font-weight: 500;
+}
+
+.form-container select option {
+  background: white;   /* dropdown options background */
+  color: #333;         /* option text color */
+}
+
+
+::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+}
+
+/* Glass Panel */
+.glass-panel {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.stations-table h2 {
+  margin-bottom: 15px;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: rgba(255,255,255,0.1);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Action Buttons */
+.action-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 8px;
+  transition: 0.3s;
+  color: white;
+}
+
+.action-btn.edit:hover {
+  color: #ffc107;
+}
+
+.action-btn.delete:hover {
+  color: #ff4d4d;
+}
+
+/* Password cell */
+.password-text {
+  margin-right: 8px;
+}
+
+.toggle-pass {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.toggle-pass:hover {
+  color: #00d4ff;
+}
