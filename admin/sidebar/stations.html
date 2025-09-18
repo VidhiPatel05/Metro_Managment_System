@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stations - Admin</title>
+  <link rel="stylesheet" href="stations.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="stations-container">
+    
+    <!-- Page Header -->
+    <header class="header">
+      <h1><i class="fas fa-map-marker-alt"></i> Stations Management</h1>
+      <button class="add-btn" id="openFormBtn"><i class="fas fa-plus"></i> Add New Station</button>
+    </header>
+
+    <!-- Add Station Form (popup) -->
+    <div class="form-popup" id="stationForm">
+      <form class="form-container" id="addStationForm">
+        <h2>Add New Station</h2>
+
+        <label for="station_name"><i class="fas fa-train"></i> Station Name</label>
+        <input type="text" id="station_name" placeholder="Enter station name" required>
+
+        <label for="station_password"><i class="fas fa-lock"></i> Station Password</label>
+        <input type="password" id="station_password" placeholder="Enter station password" required>
+
+        <label for="line"><i class="fas fa-route"></i> Line</label>
+        <select id="line" required>
+          <option value="" disabled selected>Select Line</option>
+          <option value="Red Line">Red Line</option>
+          <option value="Purple Line">Purple Line</option>
+          <option value="Green Line">Green Line</option>
+        </select>
+
+        <label for="location"><i class="fas fa-map-pin"></i> Location</label>
+        <input type="text" id="location" placeholder="Enter location or coordinates" required>
+
+        <div class="form-actions">
+          <button type="submit" class="btn save-btn">Save Station</button>
+          <button type="button" class="btn cancel-btn" id="closeFormBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stations Table -->
+    <div class="glass-panel stations-table">
+      <h2>Existing Stations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Station Name</th>
+            <th>Password</th>
+            <th>Line</th>
+            <th>Location</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="stations-list">
+          <tr>
+            <td>Shivaji Nagar</td>
+            <td>
+              <span class="password-text" data-real="shivaji123">•••••••</span>
+              <button class="toggle-pass"><i class="fas fa-eye"></i></button>
+            </td>
+            <td>Red Line</td>
+            <td>Pune City Center</td>
+            <td>
+              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr>
+            <td>Swargate</td>
+            <td>
+              <span class="password-text" data-real="swargate456">•••••••</span>
+              <button class="toggle-pass"><i class="fas fa-eye"></i></button>
+            </td>
+            <td>Purple Line</td>
+            <td>Swargate Bus Stand</td>
+            <td>
+              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    const openFormBtn = document.getElementById("openFormBtn");
+    const closeFormBtn = document.getElementById("closeFormBtn");
+    const stationForm = document.getElementById("stationForm");
+    const addStationForm = document.getElementById("addStationForm");
+    const stationsList = document.getElementById("stations-list");
+
+    // Open Form
+    openFormBtn.addEventListener("click", () => {
+      stationForm.style.display = "flex";
+    });
+
+    // Close Form
+    closeFormBtn.addEventListener("click", () => {
+      stationForm.style.display = "none";
+    });
+
+    // Add Station dynamically
+    addStationForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("station_name").value;
+      const password = document.getElementById("station_password").value;
+      const line = document.getElementById("line").value;
+      const location = document.getElementById("location").value;
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>
+          <span class="password-text" data-real="${password}">•••••••</span>
+          <button class="toggle-pass"><i class="fas fa-eye"></i></button>
+        </td>
+        <td>${line}</td>
+        <td>${location}</td>
+        <td>
+          <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+          <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+        </td>
+      `;
+
+      stationsList.appendChild(row);
+
+      // Reset and close form
+      addStationForm.reset();
+      stationForm.style.display = "none";
+
+      // Reapply toggle password event
+      applyTogglePassword(row.querySelector(".toggle-pass"));
+    });
+
+    // Toggle password visibility
+    function applyTogglePassword(button) {
+      button.addEventListener("click", () => {
+        const passText = button.previousElementSibling;
+        if (passText.textContent.includes("•")) {
+          passText.textContent = passText.dataset.real;
+          button.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+          passText.textContent = "•••••••";
+          button.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+      });
+    }
+
+    // Apply toggle to existing rows
+    document.querySelectorAll(".toggle-pass").forEach(applyTogglePassword);
+  </script>
+</body>
+</html>
