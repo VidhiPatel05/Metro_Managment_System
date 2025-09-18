@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metro Lines - Admin</title>
+  <link rel="stylesheet" href="metro_lines.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="metro-lines-container">
+    
+    <!-- Page Header -->
+    <header class="header">
+      <h1><i class="fas fa-route"></i> Metro Lines Management</h1>
+      <button class="add-btn" id="openFormBtn"><i class="fas fa-plus"></i> Add New Line</button>
+    </header>
+
+    <!-- Add Metro Line Form (hidden by default) -->
+    <div class="form-popup" id="lineForm">
+      <form class="form-container">
+        <h2>Add Metro Line</h2>
+        
+        <label for="line_name"><i class="fas fa-pen"></i> Line Name</label>
+        <input type="text" id="line_name" placeholder="Enter line name" required>
+
+        <label for="color"><i class="fas fa-paint-brush"></i> Line Color</label>
+        <input type="color" id="color" value="#ff0000">
+
+        <label for="stations"><i class="fas fa-map-marker-alt"></i> Stations</label>
+        <textarea id="stations" placeholder="Enter stations separated by commas" rows="4" required></textarea>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn save-btn">Save Line</button>
+          <button type="button" class="btn cancel-btn" id="closeFormBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Existing Metro Lines Table -->
+    <div class="glass-panel lines-table">
+      <h2>Existing Metro Lines</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Line Name</th>
+            <th>Color</th>
+            <th>Stations</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lines-list">
+          <tr>
+            <td>Red Line</td>
+            <td><span class="color-box" style="background:#FF0000;"></span></td>
+            <td>PCMC, Nashik Phata, Shivaji Nagar, Swargate</td>
+            <td>
+              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <tr>
+            <td>Purple Line</td>
+            <td><span class="color-box" style="background:#800080;"></span></td>
+            <td>Vanaz, Deccan, Shivaji Nagar, Civil Court</td>
+            <td>
+              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const openFormBtn = document.getElementById("openFormBtn");
+    const closeFormBtn = document.getElementById("closeFormBtn");
+    const lineForm = document.getElementById("lineForm");
+
+    openFormBtn.addEventListener("click", () => {
+      lineForm.style.display = "flex";
+    });
+
+    closeFormBtn.addEventListener("click", () => {
+      lineForm.style.display = "none";
+    });
+  </script>
+</body>
+</html>
