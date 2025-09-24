@@ -1,280 +1,201 @@
-// Toggle booking panel visibility
-const toggleBtn = document.getElementById('toggle-booking');
-const bookingPanel = document.getElementById('booking-panel');
-const paymentModal = document.getElementById('payment-modal');
-const ticketModal = document.getElementById('ticket-modal');
-const closeModalButtons = document.querySelectorAll('.close');
-const printTicketBtn = document.getElementById('print-ticket');
-const confirmPaymentBtn = document.getElementById('confirm-payment');
-const cancelPaymentBtn = document.getElementById('cancel-payment');
-const qrSection = document.getElementById('qr-section');
-const physicalPaymentOption = document.getElementById('physical-payment');
-const onlinePaymentOption = document.getElementById('online-payment');
+const API_BASE = 'http://localhost:3000/api';
 
-// Sample tickets data
-let tickets = [
-  {
-    id: 1,
-    from: "Station A",
-    to: "Station B",
-    date: "2025-09-18",
-    status: "unpaid"
-  }
-];
+let selectedPaymentId = null;
+let selectedTicketId = null;
 
-// Track current ticket being processed
-let currentTicketId = null;
-let selectedPaymentMethod = null;
+async function loadStations() {
+  try {
+    const res = await fetch(`${API_BASE}/tickets/stations`);
+    const stations = await res.json();
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
-  renderTickets();
-  setMinDate();
-  
-  // Hide booking panel initially
-  bookingPanel.style.display = 'none';
-  
-  // Event listeners
-  toggleBtn.addEventListener('click', toggleBookingPanel);
-  
-  closeModalButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      paymentModal.style.display = 'none';
-      ticketModal.style.display = 'none';
+    const fromSelect = document.getElementById('from-station');
+    const toSelect = document.getElementById('to-station');
+
+    fromSelect.innerHTML = '<option value="" selected>Select From Station</option>';
+    toSelect.innerHTML = '<option value="" selected>Select To Station</option>';
+
+    stations.forEach((name) => {
+      const opt1 = document.createElement('option');
+      opt1.value = name;
+      opt1.textContent = name;
+      fromSelect.appendChild(opt1);
+
+      const opt2 = document.createElement('option');
+      opt2.value = name;
+      opt2.textContent = name;
+      toSelect.appendChild(opt2);
     });
-  });
-  
-  window.addEventListener('click', function(event) {
-    if (event.target === paymentModal || event.target === ticketModal) {
-      paymentModal.style.display = 'none';
-      ticketModal.style.display = 'none';
-    }
-  });
-  
-  // Form submission
-  document.getElementById('book-ticket-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    createNewTicket();
-  });
-  
-  // Payment options selection
-  physicalPaymentOption.addEventListener('click', function() {
-    selectPayment('physical');
-  });
-  
-  onlinePaymentOption.addEventListener('click', function() {
-    selectPayment('online');
-  });
-  
-  // Payment actions
-  confirmPaymentBtn.addEventListener('click', completePayment);
-  cancelPaymentBtn.addEventListener('click', function() {
-    paymentModal.style.display = 'none';
-  });
-  
-  // Print ticket
-  printTicketBtn.addEventListener('click', printTicket);
-});
-
-// Set minimum date as today
-function setMinDate() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  let mm = today.getMonth() + 1;
-  let dd = today.getDate();
-  
-  if (mm < 10) mm = '0' + mm;
-  if (dd < 10) dd = '0' + dd;
-  
-  const formattedToday = `${yyyy}-${mm}-${dd}`;
-  document.getElementById('ticket_date').setAttribute('min', formattedToday);
+  } catch (err) {
+    console.error('Failed to load stations:', err);
+  }
 }
 
-// Toggle booking panel
-function toggleBookingPanel() {
-  bookingPanel.style.display = bookingPanel.style.display === 'block' ? 'none' : 'block';
+async function loadTickets() {
+  try {
+    const res = await fetch(`${API_BASE}/tickets`);
+    const tickets = await res.json();
+    const tbody = document.getElementById('ticket-list');
+    tbody.innerHTML = '';
+
+    tickets.forEach((t) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${t.ticket_id}</td>
+        <td>${t.from_station}</td>
+        <td>${t.to_station}</td>
+        <td>${new Date(t.ticket_date).toISOString().split('T')[0]}</td>
+        <td>${t.status}</td>
+        <td>
+          <button class="action-btn pay" data-action="pay" data-payment-id="${t.payment_id}" data-ticket-id="${t.ticket_id}" ${t.status === 'paid' ? 'disabled' : ''}>Pay</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action="pay"]');
+      if (!btn) return;
+      selectedPaymentId = btn.getAttribute('data-payment-id');
+      selectedTicketId = btn.getAttribute('data-ticket-id');
+      openPaymentModal(selectedTicketId);
+    });
+  } catch (err) {
+    console.error('Failed to load tickets:', err);
+  }
 }
 
-// Render tickets to the table
-function renderTickets() {
-  const ticketList = document.getElementById('ticket-list');
-  ticketList.innerHTML = '';
-  
-  tickets.forEach(ticket => {
-    const row = document.createElement('tr');
-    
-    row.innerHTML = `
-      <td>${ticket.id}</td>
-      <td>${ticket.from}</td>
-      <td>${ticket.to}</td>
-      <td>${formatDate(ticket.date)}</td>
-      <td><span class="status ${ticket.status}">${ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}</span></td>
-      <td>
-        ${ticket.status === 'unpaid' ? 
-          `<button class="action-btn pay" onclick="showPaymentOptions(${ticket.id})">Pay Now</button>` : 
-          `<button class="action-btn view" onclick="viewTicket(${ticket.id})">View Ticket</button>`
-        }
-        <button class="action-btn delete" onclick="removeTicket(${ticket.id})">Remove</button>
-      </td>
-    `;
-    
-    ticketList.appendChild(row);
-  });
-}
-
-// Format date for display
-function formatDate(dateString) {
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-}
-
-// Create a new ticket
-function createNewTicket() {
-  const fromStation = document.getElementById('from_station');
-  const toStation = document.getElementById('to_station');
-  const date = document.getElementById('ticket_date');
-  
-  // Generate a new ID
-  const newId = tickets.length > 0 ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
-  
-  // Create new ticket object
-  const newTicket = {
-    id: newId,
-    from: fromStation.value,
-    to: toStation.value,
-    date: date.value,
-    status: 'unpaid'
-  };
-  
-  // Add to tickets array
-  tickets.push(newTicket);
-  
-  // Re-render tickets
-  renderTickets();
-  
-  // Reset form and hide panel
-  document.getElementById('book-ticket-form').reset();
-  bookingPanel.style.display = 'none';
-  
-  // Show payment options for the new ticket
-  showPaymentOptions(newId);
-}
-
-// Show payment options modal
-function showPaymentOptions(ticketId) {
-  currentTicketId = ticketId;
-  selectedPaymentMethod = null;
-  
-  // Reset UI state
-  document.getElementById('payment-ticket-id').textContent = ticketId;
-  document.querySelectorAll('.payment-option').forEach(option => {
-    option.classList.remove('selected');
-  });
+function openPaymentModal(ticketId) {
+  const modal = document.getElementById('payment-modal');
+  const ticketSpan = document.getElementById('payment-ticket-id');
+  const qrSection = document.getElementById('qr-section');
+  const confirmBtn = document.getElementById('confirm-payment');
+  ticketSpan.textContent = ticketId;
   qrSection.style.display = 'none';
-  confirmPaymentBtn.disabled = true;
-  
-  // Show modal
-  paymentModal.style.display = 'block';
+  confirmBtn.disabled = true;
+  modal.style.display = 'block';
 }
 
-// Select payment method
-function selectPayment(method) {
-  selectedPaymentMethod = method;
-  
-  // Update UI
-  document.querySelectorAll('.payment-option').forEach(option => {
-    option.classList.remove('selected');
-  });
-  
-  if (method === 'physical') {
-    document.querySelector('.payment-option.physical').classList.add('selected');
+function closePaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  modal.style.display = 'none';
+  selectedPaymentId = null;
+  selectedTicketId = null;
+}
+
+function wirePaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  const closeBtn = modal.querySelector('.close');
+  const physical = document.getElementById('physical-payment');
+  const online = document.getElementById('online-payment');
+  const qrSection = document.getElementById('qr-section');
+  const confirmBtn = document.getElementById('confirm-payment');
+  const cancelBtn = document.getElementById('cancel-payment');
+
+  physical.addEventListener('click', () => {
     qrSection.style.display = 'none';
-  } else {
-    document.querySelector('.payment-option.online').classList.add('selected');
+    confirmBtn.disabled = false;
+  });
+
+  online.addEventListener('click', () => {
     qrSection.style.display = 'block';
-  }
-  
-  confirmPaymentBtn.disabled = false;
-}
+    confirmBtn.disabled = false;
+  });
 
-// Complete payment process
-function completePayment() {
-  if (!selectedPaymentMethod || !currentTicketId) return;
-  
-  const ticket = tickets.find(t => t.id === currentTicketId);
-  if (ticket) {
-    ticket.status = 'paid';
-    renderTickets();
-    
-    // Close payment modal and show ticket
-    paymentModal.style.display = 'none';
-    viewTicket(currentTicketId);
-    
-    if (selectedPaymentMethod === 'physical') {
-      alert(`Payment recorded for Ticket #${currentTicketId}. Customer paid at counter.`);
-    } else {
-      alert(`Payment recorded for Ticket #${currentTicketId}. Customer paid online.`);
+  confirmBtn.addEventListener('click', async () => {
+    if (!selectedPaymentId) return;
+    try {
+      const res = await fetch(`${API_BASE}/tickets/${selectedPaymentId}/pay`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'paid' })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ msg: 'Payment failed' }));
+        alert(data.msg || 'Payment failed');
+        return;
+      }
+      closePaymentModal();
+      loadTickets();
+    } catch (err) {
+      console.error('Payment error:', err);
+      alert('Payment error');
     }
-  }
+  });
+
+  cancelBtn.addEventListener('click', closePaymentModal);
+  closeBtn.addEventListener('click', closePaymentModal);
+
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) closePaymentModal();
+  });
 }
 
-// View ticket
-function viewTicket(ticketId) {
-  const ticket = tickets.find(t => t.id === ticketId);
-  if (!ticket) return;
-  
-  const ticketPreview = document.getElementById('ticket-preview');
-  
-  ticketPreview.innerHTML = `
-    <div class="ticket-header">
-      <h3>Travel Ticket</h3>
-      <p>Ticket #${ticket.id}</p>
-    </div>
-    <div class="ticket-details">
-      <div class="ticket-detail">
-        <span class="ticket-label">From</span>
-        <span class="ticket-value">${ticket.from}</span>
-      </div>
-      <div class="ticket-detail">
-        <span class="ticket-label">To</span>
-        <span class="ticket-value">${ticket.to}</span>
-      </div>
-      <div class="ticket-detail">
-        <span class="ticket-label">Date</span>
-        <span class="ticket-value">${formatDate(ticket.date)}</span>
-      </div>
-      <div class="ticket-detail">
-        <span class="ticket-label">Status</span>
-        <span class="ticket-value" style="color: ${ticket.status === 'paid' ? '#28a745' : '#d9534f'}">
-          ${ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-        </span>
-      </div>
-    </div>
-    <div class="ticket-footer">
-      <p>Thank you for traveling with us!</p>
-    </div>
-  `;
-  
-  ticketModal.style.display = 'block';
+function wireBookingForm() {
+  const form = document.getElementById('book-ticket-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const from_station = document.getElementById('from-station').value;
+    const to_station = document.getElementById('to-station').value;
+    const ticket_date = document.getElementById('ticket_date').value;
+
+    if (!from_station || !to_station || !ticket_date) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_station, to_station, ticket_date })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.msg || 'Failed to book ticket');
+        return;
+      }
+
+      // Show preview modal
+      const ticketModal = document.getElementById('ticket-modal');
+      const preview = document.getElementById('ticket-preview');
+      preview.innerHTML = `
+        <div>
+          <p><strong>Ticket ID:</strong> ${data.ticket.id}</p>
+          <p><strong>From:</strong> ${data.ticket.from}</p>
+          <p><strong>To:</strong> ${data.ticket.to}</p>
+          <p><strong>Date:</strong> ${data.ticket.date}</p>
+          <p><strong>Status:</strong> ${data.ticket.status}</p>
+          <p><strong>Amount:</strong> ₹${data.ticket.amount}</p>
+        </div>
+      `;
+      ticketModal.style.display = 'block';
+
+      document.getElementById('print-ticket').onclick = () => window.print();
+      ticketModal.querySelector('.close').onclick = () => {
+        ticketModal.style.display = 'none';
+      };
+
+      form.reset();
+      loadTickets();
+    } catch (err) {
+      console.error('Booking error:', err);
+      alert('Booking error');
+    }
+  });
 }
 
-// Print ticket
-function printTicket() {
-  const printContent = document.getElementById('ticket-preview').innerHTML;
-  const originalContent = document.body.innerHTML;
-  
-  document.body.innerHTML = printContent;
-  window.print();
-  document.body.innerHTML = originalContent;
-  
-  // Re-render tickets after printing
-  renderTickets();
+function wireToggleBookingPanel() {
+  const toggleBtn = document.getElementById('toggle-booking');
+  const panel = document.getElementById('booking-panel');
+  toggleBtn.addEventListener('click', () => {
+    panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+  });
 }
 
-// Remove ticket
-function removeTicket(ticketId) {
-  if (confirm('Are you sure you want to remove this ticket?')) {
-    tickets = tickets.filter(t => t.id !== ticketId);
-    renderTickets();
-  }
-}
+document.addEventListener('DOMContentLoaded', () => {
+  loadStations();
+  loadTickets();
+  wirePaymentModal();
+  wireBookingForm();
+  wireToggleBookingPanel();
+});

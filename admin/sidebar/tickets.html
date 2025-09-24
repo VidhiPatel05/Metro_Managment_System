@@ -14,6 +14,27 @@
       <button id="toggle-booking" class="action-btn pay">+ Create New Ticket</button>
     </div>
 
+    <!-- Create Ticket Panel -->
+    <div class="glass-panel booking-panel" id="booking-panel">
+      <h2>Create New Ticket</h2>
+      <form class="booking-form" id="book-ticket-form">
+        <label for="from-station">From Station</label>
+          <select id="from-station" required>
+            <option value="">Select From Station</option>
+          </select>      
+
+        <label for="to_station">To Station</label>
+        <select id="to-station" required>
+          <option value="">Select To Station</option>
+        </select>
+
+        <label for="ticket_date">Date</label>
+        <input type="date" id="ticket_date" name="ticket_date" required>
+
+        <button type="submit" class="action-btn pay">Create Ticket</button>
+      </form>
+    </div>
+
     <!-- Tickets Table -->
     <div class="glass-panel">
       <h2>Active Tickets</h2>
@@ -32,33 +53,6 @@
           <!-- Tickets will be dynamically added here -->
         </tbody>
       </table>
-    </div>
-
-    <!-- Create Ticket Panel -->
-    <div class="glass-panel booking-panel" id="booking-panel">
-      <h2>Create New Ticket</h2>
-      <form class="booking-form" id="book-ticket-form">
-        <label for="from_station">From Station</label>
-        <select id="from_station" name="from_station" required>
-          <option value="" disabled selected>Select Starting Station</option>
-          <option value="Station A">Station A</option>
-          <option value="Station B">Station B</option>
-          <option value="Station C">Station C</option>
-        </select>
-
-        <label for="to_station">To Station</label>
-        <select id="to_station" name="to_station" required>
-          <option value="" disabled selected>Select Destination</option>
-          <option value="Station D">Station D</option>
-          <option value="Station E">Station E</option>
-          <option value="Station F">Station F</option>
-        </select>
-
-        <label for="ticket_date">Date</label>
-        <input type="date" id="ticket_date" name="ticket_date" required>
-
-        <button type="submit" class="action-btn pay">Create Ticket</button>
-      </form>
     </div>
 
     <!-- Payment Options Modal -->
@@ -86,7 +80,7 @@
         <div class="qr-section" id="qr-section">
           <h3>Scan QR Code to Pay</h3>
           <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PaymentForTicket123" alt="QR Code">
+            <img src="../img/m13.jpg" alt="QR Code">
           </div>
           <p class="qr-instruction">Scan this code with your UPI app to complete payment</p>
         </div>
@@ -112,5 +106,6 @@
   </div>
 
   <script src="tickets.js"></script>
+    
 </body>
 </html>

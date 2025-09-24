@@ -30,9 +30,6 @@
         <label for="line"><i class="fas fa-route"></i> Line</label>
         <select id="line" required>
           <option value="" disabled selected>Select Line</option>
-          <option value="Red Line">Red Line</option>
-          <option value="Purple Line">Purple Line</option>
-          <option value="Green Line">Green Line</option>
         </select>
 
         <label for="location"><i class="fas fa-map-pin"></i> Location</label>
@@ -52,39 +49,11 @@
         <thead>
           <tr>
             <th>Station Name</th>
-            <th>Password</th>
             <th>Line</th>
             <th>Location</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="stations-list">
-          <tr>
-            <td>Shivaji Nagar</td>
-            <td>
-              <span class="password-text" data-real="shivaji123">•••••••</span>
-              <button class="toggle-pass"><i class="fas fa-eye"></i></button>
-            </td>
-            <td>Red Line</td>
-            <td>Pune City Center</td>
-            <td>
-              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td>Swargate</td>
-            <td>
-              <span class="password-text" data-real="swargate456">•••••••</span>
-              <button class="toggle-pass"><i class="fas fa-eye"></i></button>
-            </td>
-            <td>Purple Line</td>
-            <td>Swargate Bus Stand</td>
-            <td>
-              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -108,56 +77,84 @@
       stationForm.style.display = "none";
     });
 
-    // Add Station dynamically
-    addStationForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+    const API_BASE = (location.protocol.startsWith('http')
+      ? `${location.protocol}//${location.hostname}${location.port ? ':' + location.port : ''}/api/admin`
+      : 'http://localhost:3000/api/admin');
 
-      const name = document.getElementById("station_name").value;
-      const password = document.getElementById("station_password").value;
-      const line = document.getElementById("line").value;
-      const location = document.getElementById("location").value;
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${name}</td>
-        <td>
-          <span class="password-text" data-real="${password}">•••••••</span>
-          <button class="toggle-pass"><i class="fas fa-eye"></i></button>
-        </td>
-        <td>${line}</td>
-        <td>${location}</td>
-        <td>
-          <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-          <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-        </td>
-      `;
-
-      stationsList.appendChild(row);
-
-      // Reset and close form
-      addStationForm.reset();
-      stationForm.style.display = "none";
-
-      // Reapply toggle password event
-      applyTogglePassword(row.querySelector(".toggle-pass"));
-    });
-
-    // Toggle password visibility
-    function applyTogglePassword(button) {
-      button.addEventListener("click", () => {
-        const passText = button.previousElementSibling;
-        if (passText.textContent.includes("•")) {
-          passText.textContent = passText.dataset.real;
-          button.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-          passText.textContent = "•••••••";
-          button.innerHTML = '<i class="fas fa-eye"></i>';
-        }
-      });
+    async function loadLinesIntoSelect() {
+      try {
+        const res = await fetch(`${API_BASE}/lines`);
+        if (!res.ok) return;
+        const lines = await res.json();
+        const select = document.getElementById('line');
+        select.innerHTML = '<option value="" disabled selected>Select Line</option>';
+        lines.forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.line_id;
+          opt.textContent = l.line_name || `Line ${l.line_id}`;
+          select.appendChild(opt);
+        });
+      } catch {}
     }
 
-    // Apply toggle to existing rows
-    document.querySelectorAll(".toggle-pass").forEach(applyTogglePassword);
+    async function loadStations() {
+      try {
+        const res = await fetch(`${API_BASE}/stations`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const stations = await res.json();
+        stationsList.innerHTML = '';
+        stations.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${s.station_name}</td>
+            <td>${s.line_name || '-'}</td>
+            <td>${s.station_location || '-'}</td>
+          `;
+          stationsList.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Failed to load stations', e);
+      }
+    }
+
+    // Add Station via backend
+    addStationForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const station_name = document.getElementById("station_name").value.trim();
+      const password = document.getElementById("station_password").value.trim();
+      const line_id = document.getElementById("line").value;
+      const station_location = document.getElementById("location").value.trim();
+
+      if (!station_name || !password || !line_id || !station_location) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/stations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ station_name, password, line_id, station_location })
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text);
+        }
+        await res.json();
+        addStationForm.reset();
+        stationForm.style.display = "none";
+        loadStations();
+      } catch (err) {
+        console.error('Failed to add station', err);
+        alert('Failed to add station');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLinesIntoSelect();
+      loadStations();
+    });
   </script>
 </body>
 </html>

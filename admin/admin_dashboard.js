@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // These values should come from your MySQL backend
     const dashboardData = {
-        totalLines: 3,
-        totalStations: 23,
+        totalLines: 2,
+        totalStations: 31,
         totalMetros: 18,
         todayTickets: 1247,
         totalTickets: 45892,

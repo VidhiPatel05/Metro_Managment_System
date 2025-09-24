@@ -27,8 +27,11 @@
         <label for="color"><i class="fas fa-paint-brush"></i> Line Color</label>
         <input type="color" id="color" value="#ff0000">
 
-        <label for="stations"><i class="fas fa-map-marker-alt"></i> Stations</label>
-        <textarea id="stations" placeholder="Enter stations separated by commas" rows="4" required></textarea>
+        <label for="stations"><i class="fas fa-map-marker-alt"></i>From Stations</label>
+        <input type="text" id="from-station" placeholder="Enter start station" required>
+
+        <label for="stations"><i class="fas fa-map-marker-alt"></i>To Stations</label>
+        <input type="text" id="to-station" placeholder="Enter end station" required>
         
         <div class="form-actions">
           <button type="submit" class="btn save-btn">Save Line</button>
@@ -45,29 +48,12 @@
           <tr>
             <th>Line Name</th>
             <th>Color</th>
-            <th>Stations</th>
-            <th>Actions</th>
+            <th>Start Station</th>
+            <th>End Station</th>
           </tr>
         </thead>
         <tbody id="lines-list">
-          <tr>
-            <td>Red Line</td>
-            <td><span class="color-box" style="background:#FF0000;"></span></td>
-            <td>PCMC, Nashik Phata, Shivaji Nagar, Swargate</td>
-            <td>
-              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
-          <tr>
-            <td>Purple Line</td>
-            <td><span class="color-box" style="background:#800080;"></span></td>
-            <td>Vanaz, Deccan, Shivaji Nagar, Civil Court</td>
-            <td>
-              <button class="action-btn edit"><i class="fas fa-edit"></i></button>
-              <button class="action-btn delete"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
+          
         </tbody>
       </table>
     </div>
@@ -85,6 +71,70 @@
     closeFormBtn.addEventListener("click", () => {
       lineForm.style.display = "none";
     });
+
+    const API_BASE = (location.protocol.startsWith('http') 
+      ? `${location.protocol}//${location.hostname}${location.port ? ':' + location.port : ''}/api/admin`
+      : 'http://localhost:3000/api/admin');
+
+    async function loadLines() {
+      try {
+        const res = await fetch(`${API_BASE}/lines`);
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status} ${res.statusText} - ${text.substring(0, 120)}...`);
+        }
+        const lines = await res.json();
+        const tbody = document.getElementById('lines-list');
+        tbody.innerHTML = '';
+        lines.forEach((line) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${line.line_color}</td>
+            <td><span class="color-box" style="background:${line.line_color};"></span></td>
+            <td>${line.start_station || '-'}</td>
+            <td>${line.end_station || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load lines:', err);
+        alert('Failed to load lines. Please ensure the backend is running on port 3000.');
+      }
+    }
+
+    document.querySelector('.form-container').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const line_name = document.getElementById('line_name').value.trim();
+      const color = document.getElementById('color').value;
+      const start_station = document.getElementById('from-station').value.trim();
+      const end_station = document.getElementById('to-station').value.trim();
+
+      if (!color || !start_station || !end_station) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/lines`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ line_name, color, start_station, end_station })
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status} ${res.statusText} - ${text.substring(0, 120)}...`);
+        }
+        const data = await res.json();
+        lineForm.style.display = 'none';
+        e.target.reset();
+        loadLines();
+      } catch (err) {
+        console.error('Failed to add line:', err);
+        alert('Failed to add line. Verify API and station names.');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadLines);
   </script>
 </body>
 </html>

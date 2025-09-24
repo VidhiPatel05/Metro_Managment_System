@@ -1,35 +1,43 @@
-require('dotenv').config({ path: '.env' });
+require('dotenv').config({ path: __dirname + '/../.env' });
 const bcrypt = require('bcryptjs');
 const db = require('../src/config/db');
 
-const seedStation = async () => {
+const seedStations = async () => {
     try {
-        console.log('Seeding admin station...');
+        console.log('🚉 Seeding all stations...');
 
-        const stationId = 101;
-        const stationName = 'Pune Central';
-        const plainPassword = 'pune_metro_123';
+        // Step 2: Fetch all existing stations
+        const [stations] = await db.query('SELECT station_id, station_name, station_location, password FROM station');
 
-        // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(plainPassword, salt);
+        for (const station of stations) {
+            const { station_id, password } = station;
 
-        // SQL to insert the station
-        const sql = 'INSERT INTO station (station_id, station_name, station_location, password) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE station_name = ?, password = ?';
-        const values = [stationId, stationName, 'Pune City', hashedPassword, stationName, hashedPassword];
+            // Skip if password already looks like a bcrypt hash
+            if (password.startsWith('$2b$')) {
+                console.log(`⏭️ Skipping station ${station_id}, already hashed`);
+                continue;
+            }
 
-        // Execute the query
-        await db.query(sql, values);
+            // Generate hash
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
 
-        console.log(`Successfully seeded station with ID: ${stationId}`);
-        console.log(`Login with Station ID: ${stationId} and Password: ${plainPassword}`);
+            // Update the DB
+            await db.query(
+                'UPDATE station SET password = ? WHERE station_id = ?',
+                [hashedPassword, station_id]
+            );
+
+            console.log(`🔑 Updated station ${station_id} with hashed password`);
+        }
+
+        console.log('🎉 Successfully hashed all station passwords!');
 
     } catch (error) {
-        console.error('Error seeding the database:', error);
+        console.error('❌ Error seeding the database:', error);
     } finally {
-        // Close the database connection
         db.end();
     }
 };
 
-seedStation();
+seedStations();

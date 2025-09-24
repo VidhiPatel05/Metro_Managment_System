@@ -2,7 +2,6 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
-
 const app = express();
 
 // Middleware
@@ -18,6 +17,7 @@ app.get('/', (req, res) => {
 // Define Routes
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes')); 
 
 const db = require('./config/db');
 
