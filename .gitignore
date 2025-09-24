@@ -16,3 +16,6 @@ yarn-error.log*
 # Build output
 /build
 /dist
+
+# Ignore the QR image
+public/qr.jpeg
