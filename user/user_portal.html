@@ -1,193 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - Metro System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="user_portal.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MetroPass | User Dashboard</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="user_portal.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
+
 <body>
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
-                <h2>Welcome, User!</h2>
+  <div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-subway"></i>
+          <h2>MetroPass</h2>
+        </div>
+      </div>
+
+      <div class="user-info">
+        <div class="user-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-details">
+          <h3>Welcome, User!</h3>
+          <p>Premium Member</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="#my-tickets" class="nav-link active">
+              <i class="fas fa-ticket-alt"></i>
+              <span>My Tickets</span>
+              <span class="badge" id="ticket-count">0</span>
+            </a>
+          </li>
+          <li>
+            <a href="user_dashboard.html" class="nav-link">
+              <i class="fas fa-plus-circle"></i>
+              <span>Book New Ticket</span>
+            </a>
+          </li>
+          <li>
+            <a href="#travel-history" class="nav-link">
+              <i class="fas fa-history"></i>
+              <span>Travel History</span>
+            </a>
+          </li>
+          <li>
+            <a href="#profile" class="nav-link">
+              <i class="fas fa-user-edit"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="#settings" class="nav-link">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="#logout" class="nav-link logout-btn" id="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-content">
+          <h1>My Tickets</h1>
+          <div class="header-actions">
+            <div class="search-bar">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                placeholder="Search tickets..."
+                id="search-tickets"
+              />
             </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#my-tickets" class="active"><i class="fas fa-ticket-alt"></i> My Tickets</a></li>
-                    <li><a href="user_dashboard.html"><i class="fas fa-plus-circle"></i> Book New Ticket</a></li>
-                    <li><a href="#profile"><i class="fas fa-user-edit"></i> Profile</a></li>
-                    <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><a href="#logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="main-header">
-                <h1>My Tickets</h1>
-            </header>
-
-            <section id="my-tickets" class="dashboard-section active">
-                <div class="tickets-list">
-                    <!-- Tickets will be loaded here by JavaScript -->
-                    <p id="no-tickets-message">Loading tickets...</p>
-                </div>
-            </section>
-
-            <!-- Ticket Details Modal -->
-            <div id="ticket-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <h2>Ticket Details</h2>
-                    <div class="modal-ticket-info">
-                        <p><strong>Ticket ID:</strong> <span id="modal-ticket-id"></span></p>
-                        <p><strong>From:</strong> <span id="modal-from-station"></span></p>
-                        <p><strong>To:</strong> <span id="modal-to-station"></span></p>
-                        <p><strong>Date:</strong> <span id="modal-travel-date"></span></p>
-                        <p><strong>Time:</strong> <span id="modal-travel-time"></span></p>
-                        <p><strong>Amount:</strong> ₹<span id="modal-ticket-amount"></span></p>
-                        <p><strong>Status:</strong> <span id="modal-payment-status"></span></p>
-                    </div>
-                    <div class="modal-qr-container">
-                        <div id="modal-qrcode"></div>
-                        <p class="qr-note">Scan this QR code at the station</p>
-                    </div>
-                    <button id="modal-download-btn" class="btn">Download QR</button>
-                </div>
+            <div class="user-menu">
+              <div class="notification-icon">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+              </div>
             </div>
+          </div>
+        </div>
+      </header>
 
-            <!-- Other sections (Book New Ticket, Profile, Settings) can be added here -->
-            <section id="book-new-ticket" class="dashboard-section hidden">
-                <h2>Book New Ticket</h2>
-                <p>Content for booking new tickets will go here.</p>
-            </section>
-            <section id="profile" class="dashboard-section hidden">
-                <h2>Profile</h2>
-                <p>User profile details will go here.</p>
-            </section>
-            <section id="settings" class="dashboard-section hidden">
-                <h2>Settings</h2>
-                <p>User settings will go here.</p>
-            </section>
+      <!-- Dashboard Stats -->
+      <section class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="active-tickets">0</h3>
+            <p>Active Tickets</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="total-trips">0</h3>
+            <p>Total Trips</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="stat-info">
+            <h3>₹<span id="total-spent">0</span></h3>
+            <p>Total Spent</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="this-month">0</h3>
+            <p>This Month</p>
+          </div>
+        </div>
+      </section>
 
-            <!-- Other sections (Book New Ticket, Profile, Settings) can be added here -->
-            <section id="book-new-ticket" class="dashboard-section hidden">
-                <h2>Book New Ticket</h2>
-                <p>Content for booking new tickets will go here.</p>
-            </section>
-            <section id="profile" class="dashboard-section hidden">
-                <h2>Profile</h2>
-                <p>User profile details will go here.</p>
-            </section>
-            <section id="settings" class="dashboard-section hidden">
-                <h2>Settings</h2>
-                <p>User settings will go here.</p>
-            </section>
+      <!-- My Tickets Section -->
+      <section id="my-tickets" class="dashboard-section active">
+        <div class="section-header">
+          <h2>Recent Tickets</h2>
+          <div class="section-actions">
+            <button class="btn-filter" id="filter-btn">
+              <i class="fas fa-filter"></i>
+              Filter
+            </button>
+            <button class="btn-sort" id="sort-btn">
+              <i class="fas fa-sort"></i>
+              Sort
+            </button>
+          </div>
+        </div>
 
-        </main>
+        <div class="tickets-container">
+          <div class="tickets-list" id="tickets-list">
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Loading your tickets...</p>
+            </div>
+          </div>
+
+          <div class="no-tickets-state hidden" id="no-tickets-message">
+            <i class="fas fa-ticket-alt"></i>
+            <h3>No Tickets Yet</h3>
+            <p>
+              You haven't booked any tickets yet. Book your first metro ticket
+              to get started.
+            </p>
+            <a href="user_dashboard.html" class="btn btn-primary"
+              >Book New Ticket</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Other Sections -->
+      <section id="travel-history" class="dashboard-section hidden">
+        <div class="section-header">
+          <h2>Travel History</h2>
+        </div>
+        <div class="placeholder-content">
+          <p>Your travel history will appear here.</p>
+        </div>
+      </section>
+
+      <section id="profile" class="dashboard-section hidden">
+        <div class="section-header">
+          <h2>Profile Settings</h2>
+        </div>
+        <div class="placeholder-content">
+          <p>User profile details will go here.</p>
+        </div>
+      </section>
+
+      <section id="settings" class="dashboard-section hidden">
+        <div class="section-header">
+          <h2>Account Settings</h2>
+        </div>
+        <div class="placeholder-content">
+          <p>User settings will go here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Ticket Details Modal -->
+  <div id="ticket-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Ticket Details</h2>
+        <span class="close-button">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="modal-ticket-info">
+          <div class="info-row">
+            <span class="info-label">Ticket ID:</span>
+            <span class="info-value" id="modal-ticket-id">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Route:</span>
+            <span class="info-value">
+              <span id="modal-from-station">-</span>
+              <i class="fas fa-arrow-right"></i>
+              <span id="modal-to-station">-</span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Date & Time:</span>
+            <span class="info-value">
+              <span id="modal-travel-date">-</span> at
+              <span id="modal-travel-time">-</span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Amount:</span>
+            <span class="info-value">₹<span id="modal-ticket-amount">-</span></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="info-value status-badge" id="modal-payment-status">-</span>
+          </div>
+        </div>
+        <div class="modal-qr-container">
+          <div id="modal-qrcode"></div>
+          <p class="qr-note">Scan this QR code at the station entry gate</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="modal-download-btn" class="btn btn-primary">
+          <i class="fas fa-download"></i> Download QR
+        </button>
+        <button class="btn btn-secondary" id="modal-close-btn">Close</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const userToken = localStorage.getItem('user_token');
-            if (!userToken) {
-                alert('You must be logged in to view your tickets.');
-                window.location.href = 'user_login.html';
-                return;
-            }
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const userToken = localStorage.getItem("user_token");
+      if (!userToken) {
+        alert("You must be logged in to view your tickets.");
+        window.location.href = "user_login.html";
+        return;
+      }
 
-            const ticketsListDiv = document.querySelector('.tickets-list');
-            const noTicketsMessage = document.getElementById('no-tickets-message');
+      const ticketsList = document.getElementById("tickets-list");
+      const noTicketsMsg = document.getElementById("no-tickets-message");
+      const ticketCount = document.getElementById("ticket-count");
 
-            try {
-                const response = await fetch('http://localhost:3000/api/users/my-tickets', {
-                    method: 'GET',
-                    headers: {
-                        'x-auth-token': userToken
-                    }
-                });
-
-                const tickets = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(tickets.msg || 'Failed to fetch tickets');
-                }
-
-                if (tickets.length === 0) {
-                    noTicketsMessage.textContent = 'You have no booked tickets yet.';
-                } else {
-                    noTicketsMessage.style.display = 'none'; // Hide loading message
-                    // Store tickets in a variable accessible by the click handler
-                    let allTickets = tickets;
-
-                    tickets.forEach(ticket => {
-                        console.log("Ticket object before stringify:", ticket); // Added console.log
-                        const ticketCard = document.createElement('div');
-                        ticketCard.classList.add('ticket-summary-card');
-                        ticketCard.innerHTML = `
-                            <h3>Ticket ID: ${ticket.ticket_id}</h3>
-                            <p>From: ${ticket.from_station_name}</p>
-                            <p>To: ${ticket.to_station_name}</p>
-                            <p>Date: ${new Date(ticket.ticket_date).toLocaleDateString()}</p>
-                            <p>Amount: ₹${ticket.ticket_amount}</p>
-                            <p>Status: ${ticket.payment_status}</p>
-                            <button class="btn view-ticket-btn" data-ticket-id="${ticket.ticket_id}">View Details</button>
-                        `;
-                        ticketsListDiv.appendChild(ticketCard);
-                    });
-
-                    document.querySelectorAll('.view-ticket-btn').forEach(button => {
-                        button.addEventListener('click', (event) => {
-                            const clickedTicketId = parseInt(event.target.dataset.ticketId);
-                            const ticketData = allTickets.find(t => t.ticket_id === clickedTicketId);
-
-                            if (ticketData) {
-                                // Redirect to proceed_payment.html with ticket details as URL parameters
-                                const url = `proceed_payment.html?ticketId=${ticketData.ticket_id}&ticketAmount=${ticketData.ticket_amount}&from=${encodeURIComponent(ticketData.from_station_name)}&to=${encodeURIComponent(ticketData.to_station_name)}&date=${encodeURIComponent(new Date(ticketData.ticket_date).toLocaleDateString())}&time=${encodeURIComponent(ticketData.issued_time)}`;
-                                window.location.href = url;
-                            } else {
-                                console.error("Ticket data not found for ID:", clickedTicketId);
-                                alert("Could not retrieve ticket details.");
-                            }
-                        });
-                    });
-                }
-
-            } catch (error) {
-                console.error('Error fetching tickets:', error);
-                noTicketsMessage.textContent = `Error loading tickets: ${error.message}`;
-            }
-
-            // Logout functionality
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                localStorage.removeItem('user_token');
-                window.location.href = 'user_login.html';
-            });
-
-            // Sidebar navigation
-            document.querySelectorAll('.sidebar-nav a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    if (href.startsWith('#')) {
-                        e.preventDefault(); // Prevent default only for internal links
-                        document.querySelectorAll('.dashboard-section').forEach(section => {
-                            section.classList.add('hidden');
-                        });
-                        document.querySelectorAll('.sidebar-nav a').forEach(navLink => {
-                            navLink.classList.remove('active');
-                        });
-
-                        const targetId = href.substring(1);
-                        document.getElementById(targetId).classList.remove('hidden');
-                        this.classList.add('active');
-                    }
-                });
-            });
+      try {
+        const response = await fetch("http://localhost:3000/api/users/my-tickets", {
+          method: "GET",
+          headers: { "x-auth-token": userToken },
         });
-    </script>
+
+        const tickets = await response.json();
+
+        if (!response.ok) throw new Error(tickets.msg || "Failed to fetch tickets");
+
+        ticketsList.innerHTML = "";
+        if (tickets.length === 0) {
+          noTicketsMsg.classList.remove("hidden");
+          ticketCount.textContent = "0";
+        } else {
+          noTicketsMsg.classList.add("hidden");
+          ticketCount.textContent = tickets.length;
+
+          tickets.forEach((ticket) => {
+            const card = document.createElement("div");
+            card.className = "ticket-card";
+            card.innerHTML = `
+              <h3>${ticket.from_station_name} → ${ticket.to_station_name}</h3>
+              <p><strong>Date:</strong> ${new Date(ticket.ticket_date).toLocaleDateString()}</p>
+              <p><strong>Amount:</strong> ₹${ticket.ticket_amount}</p>
+              <p><strong>Status:</strong> ${ticket.payment_status}</p>
+              <button class="btn view-btn" data-id="${ticket.ticket_id}">View Details</button>
+            `;
+            ticketsList.appendChild(card);
+          });
+
+          document.querySelectorAll(".view-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = e.target.dataset.id;
+              const t = tickets.find((tk) => tk.ticket_id == id);
+              if (t) {
+                window.location.href = `proceed_payment.html?ticketId=${t.ticket_id}&ticketAmount=${t.ticket_amount}&from=${encodeURIComponent(t.from_station_name)}&to=${encodeURIComponent(t.to_station_name)}&date=${encodeURIComponent(new Date(t.ticket_date).toLocaleDateString())}&time=${encodeURIComponent(t.issued_time)}`;
+              }
+            });
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        ticketsList.innerHTML = `<p class="error">Error loading tickets: ${err.message}</p>`;
+      }
+
+      // Logout
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("user_token");
+        window.location.href = "user_login.html";
+      });
+    });
+  </script>
 </body>
 </html>
