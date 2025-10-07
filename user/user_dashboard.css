@@ -1,4 +1,8 @@
-/* Reset & base styles */
+/* ===============================
+   USER DASHBOARD - BOOK MY TICKET
+   =============================== */
+
+/* Reset & Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,72 +10,112 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-body, html {
+html, body {
     height: 100%;
     width: 100%;
 }
 
-/* Full-screen background image */
+/* Full-Screen Background */
 body {
-    background: url('img/m4.jpg') center/cover no-repeat fixed;
-    overflow: hidden;
-}
-
-/* Container */
-.container {
+    background: url('img/m41.jpg') center/cover no-repeat fixed;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    overflow: hidden;
 }
 
-/* Floating window */
+/* Floating Ticket Window */
 .floating-window {
-    background-color: #fff;
+    background: rgba(255, 255, 255, 0.966);
+    max-height: calc(100vh - 20px); 
+    backdrop-filter: blur(15px);
     border-radius: 25px;
-    padding: 40px 35px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    padding: 40px 40px;
+    width: 500px;
+    height: auto;
+    max-width: 100%;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Heading */
 .floating-window h1 {
-    margin-bottom: 25px;
-    color: #8B0000;
-    font-size: 2rem;
+    margin-bottom: 13px;
+    margin-top: 1px;
+    color: #830101;
+    font-size: 2.0rem;
     text-align: center;
+    font-weight: 700;
 }
 
-/* Form styles */
+/* Form Styling */
 form {
     width: 100%;
     display: flex;
     flex-direction: column;
 }
 
+/* Labels */
 form label {
     margin-top: 15px;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 6px;
+    font-weight: 600;
     color: #333;
+    font-size: 0.95rem;
 }
 
-form input {
-    padding: 12px;
+/* Inputs & Select Boxes */
+form input,
+form select {
+    padding: 14px 12px;
     border-radius: 12px;
     border: 1px solid #ccc;
-    outline: none;
     font-size: 1rem;
+    background-color: #fff;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
 }
 
-/* Confirm Booking button */
+/* Larger dropdowns with custom arrow */
+form select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #8B0000 50%), 
+                      linear-gradient(135deg, #8B0000 50%, transparent 50%);
+    background-position: calc(100% - 15px) calc(1em + 3px), calc(100% - 10px) calc(1em + 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+/* Focus State */
+form input:focus,
+form select:focus {
+    border-color: #b31818;
+    box-shadow: 0 0 6px rgba(179, 24, 24, 0.3);
+    outline: none;
+}
+
+/* Confirm Booking Button */
 .confirm-btn {
     margin-top: 25px;
     padding: 14px 0;
-    background-color: #b31818; /* red */
+    background-color: #b31818;
     color: white;
     border: none;
     border-radius: 12px;
@@ -79,18 +123,54 @@ form input {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .confirm-btn:hover {
     background-color: #cc0000;
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive design */
-@media (max-width: 500px) {
+/* Booking Message */
+#booking-message {
+    margin-top: 15px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
     .floating-window {
         width: 90%;
-        padding: 30px 20px;
+        padding: 25px 20px;
+    }
+
+    .floating-window h1 {
+        font-size: 1.6rem;
+    }
+
+    form label {
+        font-size: 0.9rem;
+    }
+
+    form input,
+    form select {
+        font-size: 0.95rem;
+        padding: 12px 10px;
+    }
+
+    .confirm-btn {
+        font-size: 1rem;
+        padding: 12px 0;
+    }
+}
+
+/* Optional: Center window slightly higher (for better visual balance) */
+@media (min-height: 700px) {
+    body {
+        align-items: flex-start;
+        padding-top: 60px;
     }
 }
