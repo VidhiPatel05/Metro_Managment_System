@@ -8,7 +8,7 @@
 
 body, html {
     height: 100%;
-    background: url('img/m9.jpg') no-repeat center center fixed;
+    background: url('img/m32.jpeg') no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -20,7 +20,7 @@ body, html {
 
 /* Sidebar */
 .sidebar {
-    width: 280px;
+    width: 250px;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     display: flex;
@@ -68,7 +68,7 @@ body, html {
 }
 
 .sidebar nav a:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.427);
 }
 
 .sidebar nav a.logout {
