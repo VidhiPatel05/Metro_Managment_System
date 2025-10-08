@@ -4,6 +4,12 @@ const jwt = require('jsonwebtoken');
 const Razorpay = require('razorpay'); // Added Razorpay import
 const crypto = require('crypto'); // Added crypto import
 
+// Email validation function
+const isValidEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+};
+
 // Initialize Razorpay
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -16,6 +22,11 @@ exports.registerUser = async (req, res) => {
     // Basic validation
     if (!full_name || !email || !password) {
         return res.status(400).json({ msg: 'Please enter all required fields' });
+    }
+
+    // Email format validation
+    if (!isValidEmail(email)) {
+        return res.status(400).json({ msg: 'Please enter a valid email address' });
     }
 
     try {

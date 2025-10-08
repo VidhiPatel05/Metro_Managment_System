@@ -34,16 +34,19 @@ async function loadTickets() {
   try {
     const res = await fetch(`${API_BASE}/tickets`);
     const tickets = await res.json();
+
+    const visibleTickets = Array.isArray(tickets) ? tickets.filter(t => !(t.status && t.status.toLowerCase() === 'paid')) : [];
+
     const tbody = document.getElementById('ticket-list');
     tbody.innerHTML = '';
 
-    tickets.forEach((t) => {
+    visibleTickets.forEach((t) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${t.ticket_id}</td>
         <td>${t.from_station}</td>
         <td>${t.to_station}</td>
-        <td>${new Date(t.ticket_date).toISOString().split('T')[0]}</td>
+        <td>${new Date(t.ticket_date).toLocaleDateString()}</td>
         <td>${t.status}</td>
         <td>
           <button class="action-btn pay" data-action="pay" data-payment-id="${t.payment_id}" data-ticket-id="${t.ticket_id}" ${t.status === 'paid' ? 'disabled' : ''}>Pay</button>
@@ -63,6 +66,7 @@ async function loadTickets() {
     console.error('Failed to load tickets:', err);
   }
 }
+
 
 function openPaymentModal(ticketId) {
   const modal = document.getElementById('payment-modal');

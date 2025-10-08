@@ -58,7 +58,7 @@
 
                 // On successful registration, save token and redirect
                 localStorage.setItem('user_token', data.token);
-                window.location.href = 'user_dashboard.html';
+                window.location.href = 'user_portal.html';
 
             } catch (error) {
                 errorMessageDiv.textContent = error.message;
