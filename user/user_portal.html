@@ -105,50 +105,12 @@
         </div>
       </header>
 
-      <!-- Dashboard Stats -->
-      <section class="dashboard-stats">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-ticket-alt"></i>
-          </div>
-          <div class="stat-info">
-            <h3 id="active-tickets">0</h3>
-            <p>Active Tickets</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
-          <div class="stat-info">
-            <h3 id="total-trips">0</h3>
-            <p>Total Trips</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-wallet"></i>
-          </div>
-          <div class="stat-info">
-            <h3>₹<span id="total-spent">0</span></h3>
-            <p>Total Spent</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-calendar-check"></i>
-          </div>
-          <div class="stat-info">
-            <h3 id="this-month">0</h3>
-            <p>This Month</p>
-          </div>
-        </div>
-      </section>
+      <!-- Dashboard Stats removed from here to avoid duplication. Now shown inside Travel History. -->
 
       <!-- My Tickets Section -->
       <section id="my-tickets" class="dashboard-section active">
         <div class="section-header">
-          <h2>Recent Tickets</h2>
+          <h2>Active Tickets</h2>
           <div class="section-actions">
             <button class="btn-filter" id="filter-btn">
               <i class="fas fa-filter"></i>
@@ -188,8 +150,48 @@
         <div class="section-header">
           <h2>Travel History</h2>
         </div>
-        <div class="placeholder-content">
-          <p>Your travel history will appear here.</p>
+        <!-- Stats specific to user's travel, loaded from backend -->
+        <section class="dashboard-stats" id="travel-stats">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="stat-active-tickets">0</h3>
+              <p>Active Tickets</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="stat-total-trips">0</h3>
+              <p>Total Trips</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-info">
+              <h3>₹<span id="stat-total-spent-month">0</span></h3>
+              <p>Total Spent This Month</p>
+            </div>
+          </div>
+        </section>
+        <div class="tickets-container">
+          <div class="tickets-list" id="history-list">
+            <div class="loading-state" id="history-loading">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Loading your travel history...</p>
+            </div>
+          </div>
+          <div class="no-tickets-state hidden" id="no-history-message">
+            <i class="fas fa-history"></i>
+            <h3>No past trips</h3>
+            <p>Once you complete trips, they will appear here.</p>
+          </div>
         </div>
       </section>
 
@@ -197,8 +199,12 @@
         <div class="section-header">
           <h2>Profile Settings</h2>
         </div>
-        <div class="placeholder-content">
-          <p>User profile details will go here.</p>
+        <div class="placeholder-content" id="profile-content">
+          <div style="max-width:600px;margin:0 auto;text-align:left">
+            <p><strong>Name:</strong> <span id="profile-name">-</span></p>
+            <p><strong>Email:</strong> <span id="profile-email">-</span></p>
+            <p><strong>User ID:</strong> <span id="profile-id">-</span></p>
+          </div>
         </div>
       </section>
 
@@ -328,6 +334,142 @@
         localStorage.removeItem("user_token");
         window.location.href = "user_login.html";
       });
+
+      // ---- Section Navigation Logic ----
+      const headerTitle = document.querySelector(".main-header h1");
+      const navLinks = document.querySelectorAll(".sidebar .nav-link");
+      const sections = document.querySelectorAll(".dashboard-section");
+
+      function showSection(id) {
+        sections.forEach(sec => sec.classList.add("hidden"));
+        const target = document.querySelector(id);
+        if (target) target.classList.remove("hidden");
+        navLinks.forEach(a => a.classList.remove("active"));
+        const activeLink = Array.from(navLinks).find(a => a.getAttribute("href") === id);
+        if (activeLink) activeLink.classList.add("active");
+        // Update header title
+        headerTitle.textContent = target?.querySelector(".section-header h2")?.textContent || "My Tickets";
+      }
+
+      navLinks.forEach(link => {
+        const href = link.getAttribute("href");
+        if (href?.startsWith("#")) {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            showSection(href);
+            if (href === "#travel-history") loadTravelHistory();
+            if (href === "#profile") loadProfile();
+          });
+        }
+      });
+
+      // ---- Travel History Fetch & Render ----
+      let historyLoaded = false;
+      let statsLoaded = false;
+      async function loadTravelHistory() {
+        // Load stats every time first navigation or when not loaded yet
+        if (!statsLoaded) {
+          try {
+            const sres = await fetch("http://localhost:3000/api/users/travel-stats", {
+              method: "GET",
+              headers: { "x-auth-token": userToken, "Accept": "application/json" },
+            });
+            const sct = sres.headers.get('content-type') || '';
+            const sraw = await sres.text();
+            let sdata;
+            if (sct.includes('application/json')) {
+              sdata = JSON.parse(sraw);
+            } else {
+              throw new Error(`Unexpected response (status ${sres.status}): ${sraw.substring(0, 200)}`);
+            }
+            if (!sres.ok) throw new Error(sdata.msg || `Failed to fetch stats (status ${sres.status})`);
+            document.getElementById('stat-active-tickets').textContent = sdata.activeTicketsCount ?? 0;
+            document.getElementById('stat-total-trips').textContent = sdata.totalTrips ?? 0;
+            document.getElementById('stat-total-spent-month').textContent = (sdata.totalSpentThisMonth ?? 0);
+            statsLoaded = true;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        if (historyLoaded) return; // load once
+        const historyList = document.getElementById("history-list");
+        const historyLoading = document.getElementById("history-loading");
+        const noHistoryMsg = document.getElementById("no-history-message");
+        try {
+          const res = await fetch("http://localhost:3000/api/users/travel-history", {
+            method: "GET",
+            headers: { "x-auth-token": userToken, "Accept": "application/json" },
+          });
+          const ct = res.headers.get('content-type') || '';
+          const rawText = await res.text();
+          let data;
+          if (ct.includes('application/json')) {
+            data = JSON.parse(rawText);
+          } else {
+            throw new Error(`Unexpected response (status ${res.status}): ${rawText.substring(0, 200)}`);
+          }
+          if (!res.ok) throw new Error(data.msg || `Failed to fetch travel history (status ${res.status})`);
+          historyList.innerHTML = "";
+          historyLoading?.classList.add("hidden");
+          if (!data || data.length === 0) {
+            noHistoryMsg.classList.remove("hidden");
+          } else {
+            noHistoryMsg.classList.add("hidden");
+            data.forEach((h) => {
+              const card = document.createElement("div");
+              card.className = "ticket-summary-card";
+              card.innerHTML = `
+                <h3>${h.from_station_name} → ${h.to_station_name}</h3>
+                <p><strong>Date:</strong> ${new Date(h.ticket_date).toLocaleDateString()} ${h.issued_time || ''}</p>
+                <p><strong>Amount:</strong> ₹${h.ticket_amount ?? '-'} | <strong>Status:</strong> ${h.payment_status ?? '-'}</p>
+              `;
+              historyList.appendChild(card);
+            });
+          }
+          historyLoaded = true;
+        } catch (err) {
+          console.error(err);
+          historyList.innerHTML = `<p class="error">Error loading history: ${err.message}</p>`;
+        }
+      }
+
+      // ---- Profile Fetch & Render ----
+      let profileLoaded = false;
+      async function loadProfile() {
+        if (profileLoaded) return;
+        try {
+          const res = await fetch("http://localhost:3000/api/users/profile", {
+            method: "GET",
+            headers: { "x-auth-token": userToken, "Accept": "application/json" },
+          });
+          const ct = res.headers.get('content-type') || '';
+          const rawText = await res.text();
+          let data;
+          if (ct.includes('application/json')) {
+            data = JSON.parse(rawText);
+          } else {
+            throw new Error(`Unexpected response (status ${res.status}): ${rawText.substring(0, 200)}`);
+          }
+          if (!res.ok) throw new Error(data.msg || `Failed to fetch profile (status ${res.status})`);
+          document.getElementById("profile-name").textContent = data.full_name || '-';
+          document.getElementById("profile-email").textContent = data.email || '-';
+          document.getElementById("profile-id").textContent = data.user_id ?? '-';
+          profileLoaded = true;
+        } catch (err) {
+          console.error(err);
+          const profileContent = document.getElementById("profile-content");
+          profileContent.innerHTML = `<p class="error">Error loading profile: ${err.message}</p>`;
+        }
+      }
+
+      // If URL already contains a hash, navigate accordingly
+      if (window.location.hash === '#travel-history') {
+        showSection('#travel-history');
+        loadTravelHistory();
+      } else if (window.location.hash === '#profile') {
+        showSection('#profile');
+        loadProfile();
+      }
     });
   </script>
 </body>

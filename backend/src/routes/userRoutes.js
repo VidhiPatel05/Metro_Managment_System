@@ -38,4 +38,19 @@ router.post('/verify-payment', auth, userController.verifyPayment);
 // @access  Private
 router.get('/my-tickets', auth, userController.getTickets);
 
+// @route   GET api/users/profile
+// @desc    Get profile for the authenticated user
+// @access  Private
+router.get('/profile', auth, userController.getProfile);
+
+// @route   GET api/users/travel-history
+// @desc    Get completed trips for the authenticated user
+// @access  Private
+router.get('/travel-history', auth, userController.getTravelHistory);
+
+// @route   GET api/users/travel-stats
+// @desc    Get aggregated travel stats for the authenticated user
+// @access  Private
+router.get('/travel-stats', auth, userController.getTravelStats);
+
 module.exports = router;

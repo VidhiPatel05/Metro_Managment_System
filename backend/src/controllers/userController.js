@@ -257,6 +257,7 @@ exports.verifyPayment = async (req, res) => {
     }
 };
 
+// Get upcoming/active tickets (within the next 24 hours)
 exports.getTickets = async (req, res) => {
     const userId = req.user.id; // User ID from auth middleware
 
@@ -281,10 +282,110 @@ exports.getTickets = async (req, res) => {
             LEFT JOIN
                 ticket_payment tp ON t.payment_id = tp.payment_id
             WHERE 
-                t.user_id = ? AND (CONCAT(t.ticket_date, ' ', t.issued_time) + INTERVAL 24 HOUR) > NOW() ORDER BY t.ticket_date DESC, t.issued_time DESC`,
+                t.user_id = ? AND (CONCAT(t.ticket_date, ' ', t.issued_time) + INTERVAL 24 HOUR) > NOW() 
+            ORDER BY t.ticket_date DESC, t.issued_time DESC`,
             [userId]
         );
         res.json(tickets);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Get user's past travel history (completed trips)
+exports.getTravelHistory = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const [history] = await db.query(
+            `SELECT 
+                t.ticket_id,
+                t.ticket_date,
+                t.issued_time,
+                tp.ticket_amount,
+                tp.payment_status,
+                fs.station_name AS from_station_name,
+                ts.station_name AS to_station_name
+            FROM 
+                ticket t
+            JOIN 
+                users u ON t.user_id = u.user_id
+            JOIN 
+                station fs ON t.from_station_id = fs.station_id
+            JOIN 
+                station ts ON t.to_station_id = ts.station_id
+            LEFT JOIN
+                ticket_payment tp ON t.payment_id = tp.payment_id
+            WHERE 
+                t.user_id = ? 
+                AND (CONCAT(t.ticket_date, ' ', t.issued_time) + INTERVAL 24 HOUR) <= NOW()
+            ORDER BY t.ticket_date DESC, t.issued_time DESC`,
+            [userId]
+        );
+        res.json(history);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Get aggregated travel stats for the user
+exports.getTravelStats = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Active tickets count (within next 24 hours)
+        const [activeRows] = await db.query(
+            `SELECT COUNT(*) AS cnt
+             FROM ticket t
+             WHERE t.user_id = ?
+               AND (CONCAT(t.ticket_date, ' ', t.issued_time) + INTERVAL 24 HOUR) > NOW()`,
+            [userId]
+        );
+
+        // Total trips (completed)
+        const [totalTripsRows] = await db.query(
+            `SELECT COUNT(*) AS cnt
+             FROM ticket t
+             WHERE t.user_id = ?
+               AND (CONCAT(t.ticket_date, ' ', t.issued_time) + INTERVAL 24 HOUR) <= NOW()`,
+            [userId]
+        );
+
+        // Total spent this month (successful payments only)
+        const [spentRows] = await db.query(
+            `SELECT COALESCE(SUM(tp.ticket_amount), 0) AS total
+             FROM ticket t
+             JOIN ticket_payment tp ON t.payment_id = tp.payment_id
+             WHERE t.user_id = ?
+               AND tp.payment_status = 'success'
+               AND MONTH(t.ticket_date) = MONTH(CURRENT_DATE())
+               AND YEAR(t.ticket_date) = YEAR(CURRENT_DATE())`,
+            [userId]
+        );
+
+        res.json({
+            activeTicketsCount: activeRows[0]?.cnt ?? 0,
+            totalTrips: totalTripsRows[0]?.cnt ?? 0,
+            totalSpentThisMonth: Number(spentRows[0]?.total ?? 0)
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Get user profile (read-only)
+exports.getProfile = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const [rows] = await db.query(
+            'SELECT user_id, full_name, email FROM users WHERE user_id = ?',
+            [userId]
+        );
+        if (rows.length === 0) return res.status(404).json({ msg: 'User not found' });
+        res.json(rows[0]);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
