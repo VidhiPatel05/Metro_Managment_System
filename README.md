@@ -1,5 +1,5 @@
-🎥 Demo video: https://drive.google.com/file/d/1pzhAjXsQIUB_ADjpsChJaN2nDUcbPdaF/view?usp=sharing  
-📄 Report: https://drive.google.com/file/d/1rOB_bgVK3ZxH2HMfj5o7B7beztVULT6H/view?usp=sharing
+🎥 [Demo video](https://drive.google.com/file/d/1pzhAjXsQIUB_ADjpsChJaN2nDUcbPdaF/view?usp=sharing)  
+📄 [Report](https://drive.google.com/file/d/1rOB_bgVK3ZxH2HMfj5o7B7beztVULT6H/view?usp=sharing)
 # Metro Management System
 
 A full-stack Metro ticketing and management project with a Node.js/Express backend (MySQL) and a React frontend. It supports user registration/login (JWT), station and line management (admin), ticket booking, and Razorpay payment integration.
